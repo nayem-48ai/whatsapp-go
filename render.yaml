@@ -1,0 +1,46 @@
+# Render Blueprint — WhatsappGo (self-hosted WhatsApp API)
+# Database: Neon Postgres project "whatsapp-go" (permanent).
+#   Set POSTGRES_AUTH_DB / POSTGRES_USERS_DB in the Render dashboard (or via API)
+#   to the Neon connection string (sslmode=require). Marked sync:false here so
+#   this file never carries secrets.
+# Self-hosted license: LICENSE_MODE=self makes the app its own license
+#   server — keys + emails live in YOUR database, nothing leaves your server.
+# Deploy: push to GitHub (nayem-48ai/whatsapp-go), then
+#   Render Dashboard -> New -> Blueprint -> select the repo.
+
+services:
+  - type: web
+    name: whatsappgo
+    runtime: docker
+    plan: free
+    branch: main
+    dockerfilePath: ./Dockerfile
+    port: 8080
+    healthCheckPath: /license/status
+    envVars:
+      - key: SERVER_PORT
+        value: "8080"
+      - key: POSTGRES_AUTH_DB
+        sync: false
+      - key: POSTGRES_USERS_DB
+        sync: false
+      - key: GLOBAL_API_KEY
+        sync: false
+      - key: CLIENT_NAME
+        value: "whatsappgo"
+      - key: LICENSE_MODE
+        value: "self"
+      - key: DATABASE_SAVE_MESSAGES
+        value: "false"
+      - key: WADEBUG
+        value: "INFO"
+      - key: LOGTYPE
+        value: "console"
+      - key: CONNECT_ON_STARTUP
+        value: "false"
+      - key: WEBHOOK_FILES
+        value: "true"
+      - key: OS_NAME
+        value: "WhatsappGo"
+      - key: MINIO_ENABLED
+        value: "false"
