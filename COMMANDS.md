@@ -1,6 +1,6 @@
 # 🚀 Guia Rápido de Comandos
 
-Comandos mais usados no dia a dia de desenvolvimento do Evolution GO.
+Comandos mais usados no dia a dia de desenvolvimento do WhatsappGo.
 
 ## 📋 Comandos Essenciais
 
@@ -130,7 +130,7 @@ make clean-all
 
 ```bash
 # 1. Clone o repositório
-git clone https://git.evoai.app/Evolution/evolution-go.git
+git clone https://github.com/nayem-48ai/whatsapp-go.git
 cd evolution-go
 
 # 2. Setup completo do ambiente
