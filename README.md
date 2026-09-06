@@ -144,6 +144,18 @@ LOGTYPE=console
 5. The callback activates the instance; the license (`api_key`) is stored in
    your own database (`self_licenses` table) and status becomes `active`.
 
+## Universal license portal (for everyone)
+
+Fresh `whatsapp-go` deployments verify against the public portal by default
+— no configuration needed:
+
+- Portal: `https://whatsappgo.tnxbd.top/license-server/register` — branded
+  activation with **Continue with Google** (verified Gmail) or email.
+- Prefer full autonomy? `LICENSE_MODE=self` turns any deployment (Docker/VPS)
+  into its own license server with zero config.
+- Operators can point deployments at a different portal with
+  `LICENSE_SERVER_URL=https://…`.
+
 Headless servers: after one manual activation, restarts stay licensed
 automatically (the key persists in the database).
 
