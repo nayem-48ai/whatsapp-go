@@ -752,4 +752,4 @@ Ao alterar foto de perfil, certifique-se que a imagem:
 
 ---
 
-**Documentação gerada para Evolution GO v1.0**
+**Documentação gerada para WhatsappGo v1.0**

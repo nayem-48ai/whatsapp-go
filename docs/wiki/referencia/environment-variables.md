@@ -1,6 +1,6 @@
 # Variáveis de Ambiente
 
-Referência rápida de variáveis de ambiente do Evolution GO.
+Referência rápida de variáveis de ambiente do WhatsappGo.
 
 Para documentação detalhada, consulte: [Configuração](../fundamentos/configuration.md)
 
@@ -227,4 +227,4 @@ MINIO_USE_SSL=false
 
 ---
 
-**Documentação Evolution GO v1.0**
+**Documentação WhatsappGo v1.0**

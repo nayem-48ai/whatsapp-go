@@ -1,6 +1,6 @@
 # Como Contribuir
 
-Guia para contribuir com o Evolution GO.
+Guia para contribuir com o WhatsappGo.
 
 ## Índice
 
@@ -66,7 +66,7 @@ Se aplicável, adicione screenshots ou logs.
 **Ambiente**
 - OS: [ex: Ubuntu 22.04]
 - Go Version: [ex: 1.24.0]
-- Evolution GO Version: [ex: v1.0.0]
+- WhatsappGo Version: [ex: v1.0.0]
 - PostgreSQL Version: [ex: 15.2]
 
 **Informações Adicionais**

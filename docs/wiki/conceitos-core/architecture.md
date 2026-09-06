@@ -1,6 +1,6 @@
 # Arquitetura
 
-Como o Evolution GO está organizado por dentro - explicado de forma simples.
+Como o WhatsappGo está organizado por dentro - explicado de forma simples.
 
 ## 📋 Índice
 
@@ -15,7 +15,7 @@ Como o Evolution GO está organizado por dentro - explicado de forma simples.
 
 ## Visão Geral
 
-O Evolution GO é organizado em **3 camadas** separadas. Pense nisso como uma lanchonete:
+O WhatsappGo é organizado em **3 camadas** separadas. Pense nisso como uma lanchonete:
 
 1. **Atendente** (Handler) - Recebe seu pedido
 2. **Cozinha** (Service) - Prepara o pedido
@@ -428,7 +428,7 @@ WhatsApp usa criptografia ponta-a-ponta:
 
 ### Horizontal (Mais Servidores)
 
-Pode ter múltiplas cópias do Evolution GO:
+Pode ter múltiplas cópias do WhatsappGo:
 
 ```
            ┌─────────────────┐
@@ -494,7 +494,7 @@ Melhorar o servidor existente:
 
 ```
 ┌──────────────────────────────────┐
-│      Evolution GO Server         │
+│      WhatsappGo Server         │
 ├──────────────────────────────────┤
 │                                  │
 │  ┌────────┐      ┌───────────┐  │
@@ -537,4 +537,4 @@ Melhorar o servidor existente:
 
 ---
 
-**Documentação Evolution GO v1.0**
+**Documentação WhatsappGo v1.0**

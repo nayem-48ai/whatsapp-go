@@ -220,4 +220,4 @@ Certifique-se de que seu servidor:
 
 ---
 
-**Documentação gerada para Evolution GO v1.0**
+**Documentação gerada para WhatsappGo v1.0**

@@ -271,4 +271,4 @@ Logs incluem:
 
 ---
 
-**Documentação Evolution GO v1.0**
+**Documentação WhatsappGo v1.0**

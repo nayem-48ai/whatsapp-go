@@ -7166,8 +7166,8 @@ definitions:
     - ParticipantChangeDemote
 info:
   contact: {}
-  description: Evolution GO - whatsmeow
-  title: Evolution GO
+  description: WhatsappGo - whatsmeow
+  title: WhatsappGo
   version: "1.0"
 paths:
   /call/reject:

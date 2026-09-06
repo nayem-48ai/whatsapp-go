@@ -270,7 +270,8 @@ func selfHandleRegisterComplete(c *gin.Context) {
 	if strings.Contains(rt.RedirectURI, "?") {
 		sep = "&"
 	}
-	c.Redirect(http.StatusFound, rt.RedirectURI+sep+"code="+code)
+	continueURL := rt.RedirectURI + sep + "code=" + code
+	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(selfSuccessPage(email, continueURL)))
 }
 
 func selfHandleRegisterExchange(c *gin.Context) {
@@ -420,6 +421,36 @@ func selfRegisterPage(token, instanceID string) string {
 		`<input id="email" type="email" name="email" required placeholder="you@example.com" autocomplete="email"/>` +
 		`<button type="submit">Activate license</button></form>` +
 		`<p class="mono">Instance&nbsp;` + html.EscapeString(instanceID) + `</p>` +
+		`<div class="foot">WhatsappGo · Self-hosted license server</div></div></body></html>`
+}
+
+func selfSuccessPage(email, continueURL string) string {
+	return `<!doctype html><html lang="en"><head><meta charset="utf-8"/>` +
+		`<meta name="viewport" content="width=device-width,initial-scale=1"/>` +
+		`<meta http-equiv="refresh" content="3;url=` + html.EscapeString(continueURL) + `"/>` +
+		`<title>WhatsappGo — License issued</title>` +
+		`<link rel="icon" href="https://raw.githubusercontent.com/nayem-48ai/whatsapp-go/main/public/whatsappgo/favicon.svg"/>` +
+		`<style>*{box-sizing:border-box}body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#09090b;color:#fafafa;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px}` +
+		`.card{background:#131316;border:1px solid #27272a;border-radius:16px;padding:36px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5);text-align:center}` +
+		`.brand{display:flex;align-items:center;gap:12px;margin-bottom:6px;text-align:left}` +
+		`.brand img{width:44px;height:44px;border-radius:11px}` +
+		`.brand b{font-size:20px}` +
+		`.check{width:64px;height:64px;border-radius:50%;background:#25d366;color:#062d1a;font-size:32px;font-weight:800;line-height:64px;margin:18px auto 6px}` +
+		`h1{font-size:22px;margin:12px 0 8px}` +
+		`.steps{display:flex;gap:6px;margin:16px 0 4px}` +
+		`.steps span{flex:1;text-align:center;font-size:11px;color:#4ade80;padding-top:8px;border-top:2px solid #25d366}` +
+		`p{color:#a1a1aa;font-size:14px;line-height:1.55}` +
+		`.mail{color:#fafafa;font-weight:600;word-break:break-all}` +
+		`.btn{display:inline-block;margin-top:18px;background:#25d366;border-radius:9px;color:#062d1a;padding:11px 34px;font-size:15px;font-weight:700;text-decoration:none}` +
+		`.btn:hover{background:#1eb856}` +
+		`.hint{margin-top:14px;font-size:12px}` +
+		`.foot{margin-top:20px;padding-top:14px;border-top:1px solid #27272a;font-size:12px;color:#71717a}</style></head><body>` +
+		`<div class="card"><div class="brand"><img src="https://raw.githubusercontent.com/nayem-48ai/whatsapp-go/main/public/whatsappgo/logo-400.png" alt="WhatsappGo"/><b>WhatsappGo</b></div>` +
+		`<div class="steps"><span>1 · Email</span><span>2 · Activate</span><span>3 · Done</span></div>` +
+		`<div class="check">✓</div><h1>License issued</h1>` +
+		`<p>Your license for <span class="mail">` + html.EscapeString(email) + `</span> is active and stored on your own server. Continuing to your app…</p>` +
+		`<a class="btn" href="` + html.EscapeString(continueURL) + `">Continue to Manager</a>` +
+		`<p class="hint">Not redirected automatically? Click the button above.</p>` +
 		`<div class="foot">WhatsappGo · Self-hosted license server</div></div></body></html>`
 }
 

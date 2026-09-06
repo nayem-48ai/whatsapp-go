@@ -1,6 +1,6 @@
 # Debugging e Troubleshooting
 
-Guia para resolver problemas comuns no Evolution GO.
+Guia para resolver problemas comuns no WhatsappGo.
 
 ## Índice
 
@@ -194,7 +194,7 @@ docker-compose logs -f evolution-go
 ### VSCode
 
 1. Abrir `Run and Debug` (Ctrl+Shift+D)
-2. Selecionar "Launch Evolution GO"
+2. Selecionar "Launch WhatsappGo"
 3. Adicionar breakpoints (F9)
 4. Iniciar debug (F5)
 
@@ -205,7 +205,7 @@ docker-compose logs -f evolution-go
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Evolution GO",
+      "name": "Debug WhatsappGo",
       "type": "go",
       "request": "launch",
       "mode": "debug",
@@ -219,7 +219,7 @@ docker-compose logs -f evolution-go
 
 ### GoLand
 
-1. **Run → Debug 'Evolution GO'**
+1. **Run → Debug 'WhatsappGo'**
 2. Adicionar breakpoints (Ctrl+F8)
 3. Debug com F5
 

@@ -1,6 +1,6 @@
 # Guia de Desenvolvimento
 
-Guia completo para desenvolver e contribuir com o Evolution GO.
+Guia completo para desenvolver e contribuir com o WhatsappGo.
 
 ## Índice
 
@@ -19,7 +19,7 @@ Guia completo para desenvolver e contribuir com o Evolution GO.
 
 ## Visão Geral
 
-O Evolution GO é um **gateway de API WhatsApp** escrito em Go, utilizando:
+O WhatsappGo é um **gateway de API WhatsApp** escrito em Go, utilizando:
 
 - **Linguagem**: Go 1.24+
 - **Framework Web**: Gin
@@ -473,7 +473,7 @@ Salvar em `.vscode/tasks.json`.
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Evolution GO",
+      "name": "Launch WhatsappGo",
       "type": "go",
       "request": "launch",
       "mode": "debug",
@@ -497,7 +497,7 @@ Salvar em `.vscode/launch.json`.
 1. **Run → Edit Configurations**
 2. **Add New Configuration → Go Build**
 3. Configurar:
-   - **Name**: Evolution GO Dev
+   - **Name**: WhatsappGo Dev
    - **Run kind**: Directory
    - **Directory**: `cmd/evolution-go`
    - **Program arguments**: `-dev`

@@ -1,6 +1,6 @@
 # Guia de Instalação
 
-Métodos de instalação do Evolution GO para diferentes ambientes.
+Métodos de instalação do WhatsappGo para diferentes ambientes.
 
 ## Índice
 
@@ -103,7 +103,7 @@ Aguarde ~30 segundos para inicialização completa.
 ### 4. Verificar Logs
 
 ```bash
-# Evolution GO
+# WhatsappGo
 docker-compose logs -f evolution-go
 
 # PostgreSQL
@@ -284,7 +284,7 @@ docker-compose -f docker-compose-full.yml up -d
 
 | Serviço | Porta | Função |
 |---------|-------|--------|
-| Evolution GO | 4000 | API principal |
+| WhatsappGo | 4000 | API principal |
 | PostgreSQL | 5432 | Banco de dados |
 | RabbitMQ | 5672, 15672 | Filas de mensagens |
 | MinIO | 9000, 9001 | Storage de objetos |
@@ -292,7 +292,7 @@ docker-compose -f docker-compose-full.yml up -d
 
 **Acessos:**
 
-- Evolution GO: http://localhost:4000
+- WhatsappGo: http://localhost:4000
 - Swagger: http://localhost:4000/swagger/index.html
 - RabbitMQ: http://localhost:15672 (admin/admin)
 - MinIO: http://localhost:9001 (minioadmin/minioadmin)
@@ -488,4 +488,4 @@ Disponíveis em `docker/examples/`:
 
 ---
 
-**Documentação Evolution GO v1.0**
+**Documentação WhatsappGo v1.0**

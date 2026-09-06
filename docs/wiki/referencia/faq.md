@@ -1,16 +1,16 @@
 # FAQ - Perguntas Frequentes
 
-Respostas para questões comuns sobre o Evolution GO.
+Respostas para questões comuns sobre o WhatsappGo.
 
 ## Visão Geral
 
-### O que é Evolution GO?
+### O que é WhatsappGo?
 
 Gateway de API WhatsApp construído em Go que fornece interface RESTful para comunicação com o protocolo WhatsApp Web. Permite automação de mensagens, gerenciamento multi-instância e integração via APIs padronizadas.
 
-### Diferença entre Evolution GO e Evolution API (Node.js)?
+### Diferença entre WhatsappGo e Evolution API (Node.js)?
 
-- **Evolution GO**: Implementação em Go, foco em performance e baixo consumo de recursos
+- **WhatsappGo**: Implementação em Go, foco em performance e baixo consumo de recursos
 - **Evolution API V2**: Implementação em Node.js/TypeScript, maior maturidade e conjunto de features
 
 Ambos utilizam a biblioteca whatsmeow para conexão com WhatsApp.
@@ -247,7 +247,7 @@ Consulte [Guia de Contribuição](../desenvolvimento/contributing.md) para proce
 ### Reporte de Bugs
 
 Utilize [Issues no GitLab](https://git.evoai.app/Evolution/evolution-go/issues) incluindo:
-- Versão do Evolution GO
+- Versão do WhatsappGo
 - Ambiente (Docker/local, SO)
 - Steps to reproduce
 - Logs relevantes
@@ -271,4 +271,4 @@ Utilize [Issues no GitLab](https://git.evoai.app/Evolution/evolution-go/issues) 
 
 **Não encontrou resposta?** Abra uma [issue](https://git.evoai.app/Evolution/evolution-go/issues) com sua questão.
 
-**Documentação Evolution GO v1.0**
+**Documentação WhatsappGo v1.0**

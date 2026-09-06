@@ -1,4 +1,4 @@
-# Evolution GO - Changelog
+# WhatsappGo - Changelog
 
 ## v0.7.2
 

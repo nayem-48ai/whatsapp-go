@@ -1,12 +1,12 @@
-# Introdução ao Evolution GO
+# Introdução ao WhatsappGo
 
 ## Visão Geral
 
-Evolution GO é um gateway de API WhatsApp construído em Go que fornece uma interface RESTful para integração com o protocolo WhatsApp Web. Funciona como camada de abstração entre aplicações e o WhatsApp, permitindo automação de mensagens, gerenciamento de múltiplas instâncias e integração através de APIs padronizadas.
+WhatsappGo é um gateway de API WhatsApp construído em Go que fornece uma interface RESTful para integração com o protocolo WhatsApp Web. Funciona como camada de abstração entre aplicações e o WhatsApp, permitindo automação de mensagens, gerenciamento de múltiplas instâncias e integração através de APIs padronizadas.
 
 O projeto utiliza a biblioteca [whatsmeow](https://github.com/tulir/whatsmeow), uma implementação Go do protocolo WhatsApp Web Multi-Device, e adiciona sobre ela recursos empresariais como APIs REST, sistema de eventos, persistência de dados e gerenciamento multi-instância.
 
-## O que o Evolution GO oferece
+## O que o WhatsappGo oferece
 
 ### Comunicação via API REST
 
@@ -43,7 +43,7 @@ Receba notificações em tempo real através de:
 
 ## Arquitetura
 
-O Evolution GO segue arquitetura em camadas:
+O WhatsappGo segue arquitetura em camadas:
 
 ```
 ┌─────────────────────────────────────────┐
@@ -78,7 +78,7 @@ A [whatsmeow](https://github.com/tulir/whatsmeow) implementa o protocolo WhatsAp
 - Sincronização de mensagens
 - Gerenciamento de sessões
 
-O Evolution GO utiliza a whatsmeow como base e adiciona camada empresarial com APIs REST, gerenciamento de múltiplas instâncias, sistema de eventos e persistência.
+O WhatsappGo utiliza a whatsmeow como base e adiciona camada empresarial com APIs REST, gerenciamento de múltiplas instâncias, sistema de eventos e persistência.
 
 ## Casos de Uso
 
@@ -202,7 +202,7 @@ O servidor estará disponível em `http://localhost:4000` com documentação Swa
 
 ## Diferencial
 
-| Aspecto | Evolution GO | WhatsApp Business API |
+| Aspecto | WhatsappGo | WhatsApp Business API |
 |---------|--------------|----------------------|
 | Licença | Apache 2.0 | Proprietária |
 | Custo | Gratuito | Pago por mensagem |
@@ -232,7 +232,7 @@ O servidor estará disponível em `http://localhost:4000` com documentação Swa
 Apache License 2.0 com condições adicionais:
 
 1. Logo e informações de copyright não podem ser removidas das interfaces
-2. Uso do Evolution GO deve ser notificado/creditado no sistema que o utiliza
+2. Uso do WhatsappGo deve ser notificado/creditado no sistema que o utiliza
 
 Detalhes completos: [apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
 

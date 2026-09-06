@@ -1,6 +1,6 @@
 # Configuração
 
-Referência completa de variáveis de ambiente do Evolution GO.
+Referência completa de variáveis de ambiente do WhatsappGo.
 
 Para exemplos práticos, consulte: `docker/examples/.env.example`
 
@@ -70,7 +70,7 @@ Identificador do cliente/instalação.
 - **Tipo**: String
 
 ```env
-CLIENT_NAME=evolution-production
+CLIENT_NAME=whatsappgo-production
 ```
 
 ### OS_NAME
@@ -555,4 +555,4 @@ EVENT_IGNORE_STATUS=true
 
 ---
 
-**Documentação Evolution GO v1.0**
+**Documentação WhatsappGo v1.0**

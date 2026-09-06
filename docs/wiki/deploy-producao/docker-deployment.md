@@ -1,6 +1,6 @@
 # Deploy com Docker
 
-Guia de deploy do Evolution GO usando Docker, Docker Compose, Swarm e Kubernetes.
+Guia de deploy do WhatsappGo usando Docker, Docker Compose, Swarm e Kubernetes.
 
 ## Índice
 
@@ -31,7 +31,7 @@ Guia de deploy do Evolution GO usando Docker, Docker Compose, Swarm e Kubernetes
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  ┌──────────────┐      ┌──────────────┐      ┌──────────────┐ │
-│  │ Evolution GO │◄────►│  PostgreSQL  │      │  RabbitMQ    │ │
+│  │ WhatsappGo │◄────►│  PostgreSQL  │      │  RabbitMQ    │ │
 │  │   (API)      │      │   (Auth DB)  │      │  (Events)    │ │
 │  │  Port: 4000  │      │   (Users DB) │      │  Port: 5672  │ │
 │  └──────┬───────┘      └──────────────┘      └──────────────┘ │
@@ -59,7 +59,7 @@ Guia de deploy do Evolution GO usando Docker, Docker Compose, Swarm e Kubernetes
 
 ### Setup Básico
 
-Configuração mínima com Evolution GO + PostgreSQL.
+Configuração mínima com WhatsappGo + PostgreSQL.
 
 #### docker-compose.yml
 
@@ -238,7 +238,7 @@ volumes:
 ```
 
 **Acessos:**
-- Evolution GO: http://localhost:4000
+- WhatsappGo: http://localhost:4000
 - Swagger: http://localhost:4000/swagger/index.html
 - RabbitMQ: http://localhost:15672 (admin/admin)
 - MinIO: http://localhost:9001 (minioadmin/minioadmin)
@@ -262,9 +262,9 @@ POSTGRES_PASSWORD=senha_forte
 RABBITMQ_USER=admin
 RABBITMQ_PASS=senha_forte
 
-# Evolution GO
+# WhatsappGo
 GLOBAL_API_KEY=df16caad-d0d2-41b2-bec5-75b90048a0db
-CLIENT_NAME=evolution-prod
+CLIENT_NAME=whatsappgo-prod
 ```
 
 Referência no compose:
@@ -811,4 +811,4 @@ kubectl delete -f file.yaml             # Deletar
 
 ---
 
-**Documentação Evolution GO v1.0**
+**Documentação WhatsappGo v1.0**

@@ -1,6 +1,6 @@
 # Segurança e Hardening
 
-Guia de práticas de segurança para ambientes de produção do Evolution GO.
+Guia de práticas de segurança para ambientes de produção do WhatsappGo.
 
 ## Índice
 
@@ -573,7 +573,7 @@ http {
 
 ### SQL Injection
 
-Evolution GO usa GORM (ORM) que previne SQL injection por padrão através de prepared statements.
+WhatsappGo usa GORM (ORM) que previne SQL injection por padrão através de prepared statements.
 
 ### Brute-Force Protection (Fail2ban)
 
@@ -729,4 +729,4 @@ docker export container_suspeito > filesystem_suspeito.tar
 
 ---
 
-**Documentação Evolution GO v1.0**
+**Documentação WhatsappGo v1.0**

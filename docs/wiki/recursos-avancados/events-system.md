@@ -1,6 +1,6 @@
 # Sistema de Eventos
 
-Sistema completo de notificações em tempo real do Evolution GO. Receba eventos do WhatsApp através de múltiplos canais: Webhooks, RabbitMQ, NATS e WebSocket.
+Sistema completo de notificações em tempo real do WhatsappGo. Receba eventos do WhatsApp através de múltiplos canais: Webhooks, RabbitMQ, NATS e WebSocket.
 
 ## 📋 Índice
 
@@ -20,7 +20,7 @@ Sistema completo de notificações em tempo real do Evolution GO. Receba eventos
 
 ## Visão Geral
 
-O Evolution GO envia notificações de eventos do WhatsApp em tempo real através de diferentes canais de comunicação:
+O WhatsappGo envia notificações de eventos do WhatsApp em tempo real através de diferentes canais de comunicação:
 
 - **Webhook (HTTP POST)**: Ideal para integração simples com APIs externas
 - **RabbitMQ (AMQP)**: Message broker para arquiteturas empresariais e filas confiáveis
@@ -83,7 +83,7 @@ Você pode ativar múltiplos canais simultaneamente - os eventos serão enviados
 
 ### Visão Geral
 
-Envia eventos via HTTP POST para uma URL que você configurar. É o método mais simples para integrar o Evolution GO com suas aplicações.
+Envia eventos via HTTP POST para uma URL que você configurar. É o método mais simples para integrar o WhatsappGo com suas aplicações.
 
 ### Características
 
@@ -122,7 +122,7 @@ Quando um evento ocorre no WhatsApp:
 
 1. **Webhook Global**: Se configurado via `WEBHOOK_URL`, todos os eventos são enviados para esta URL
 2. **Webhook por Instância**: Se configurado no `POST /instance/connect`, eventos daquela instância vão para a URL específica
-3. **Retry Automático**: Se a requisição falhar, o Evolution GO tenta novamente até 5 vezes
+3. **Retry Automático**: Se a requisição falhar, o WhatsappGo tenta novamente até 5 vezes
 4. **Intervalo**: 30 segundos entre cada tentativa
 
 ### Requisição HTTP
@@ -278,7 +278,7 @@ AMQP_GLOBAL_EVENTS=MESSAGE,CALL,CONNECTION
 
 ### Propriedades das Filas
 
-As filas RabbitMQ criadas pelo Evolution GO são configuradas com:
+As filas RabbitMQ criadas pelo WhatsappGo são configuradas com:
 
 - **Quorum queues**: Replicação automática para alta disponibilidade
 - **Durabilidade**: Mensagens persistem após restart do servidor
@@ -466,7 +466,7 @@ ws://localhost:4000/ws?token=GLOBAL_API_KEY
 
 ### Gerenciamento de Conexões
 
-O Evolution GO gerencia automaticamente as conexões WebSocket:
+O WhatsappGo gerencia automaticamente as conexões WebSocket:
 
 - **Conexões específicas**: Cada instância pode ter sua própria conexão
 - **Conexões broadcast**: Recebem eventos de todas as instâncias
@@ -589,7 +589,7 @@ curl -X POST http://localhost:4000/instance/connect \
 
 ### Categorias vs Eventos Individuais
 
-O Evolution GO usa dois níveis de classificação de eventos:
+O WhatsappGo usa dois níveis de classificação de eventos:
 
 **Categorias de Eventos** (usadas no `subscribe`):
 - São escritas em **MAIÚSCULAS**: `MESSAGE`, `GROUP`, `CALL`, etc.
@@ -863,7 +863,7 @@ python rabbitmq-consumer.py
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Evolution GO Dashboard</title>
+    <title>WhatsappGo Dashboard</title>
 </head>
 <body>
     <h1>Mensagens em Tempo Real</h1>
@@ -1043,4 +1043,4 @@ location /ws {
 
 ---
 
-**Documentação gerada para Evolution GO v1.0**
+**Documentação gerada para WhatsappGo v1.0**

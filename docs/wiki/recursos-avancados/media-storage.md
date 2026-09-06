@@ -1,6 +1,6 @@
 # Armazenamento de Mídia
 
-Sistema de armazenamento de arquivos de mídia do Evolution GO. Suporta MinIO, Amazon S3 e outros serviços compatíveis com S3.
+Sistema de armazenamento de arquivos de mídia do WhatsappGo. Suporta MinIO, Amazon S3 e outros serviços compatíveis com S3.
 
 ## 📋 Índice
 
@@ -16,7 +16,7 @@ Sistema de armazenamento de arquivos de mídia do Evolution GO. Suporta MinIO, A
 
 ## Visão Geral
 
-O Evolution GO armazena arquivos de mídia (imagens, vídeos, áudios, documentos) em **object storage** compatível com S3. Isso inclui serviços como MinIO, Amazon S3, Backblaze B2, DigitalOcean Spaces e outros.
+O WhatsappGo armazena arquivos de mídia (imagens, vídeos, áudios, documentos) em **object storage** compatível com S3. Isso inclui serviços como MinIO, Amazon S3, Backblaze B2, DigitalOcean Spaces e outros.
 
 ### Por que Object Storage?
 
@@ -42,7 +42,7 @@ O Evolution GO armazena arquivos de mídia (imagens, vídeos, áudios, documento
        │
        ▼
 ┌──────────────┐
-│ Evolution GO │ Recebe arquivo
+│ WhatsappGo │ Recebe arquivo
 └──────┬───────┘
        │
        ▼
@@ -191,7 +191,7 @@ Todos os arquivos são armazenados automaticamente no diretório `evolution-go-m
 
 ### Como Funcionam
 
-Quando você armazena ou solicita acesso a um arquivo, o Evolution GO gera automaticamente uma URL presignada com validade de 7 dias.
+Quando você armazena ou solicita acesso a um arquivo, o WhatsappGo gera automaticamente uma URL presignada com validade de 7 dias.
 
 **Exemplo de URL presignada**:
 ```
@@ -311,7 +311,7 @@ MINIO_USE_SSL=true
 ### 1. Upload de Mídia
 
 Quando o WhatsApp recebe uma imagem, vídeo ou documento:
-1. O Evolution GO baixa o arquivo
+1. O WhatsappGo baixa o arquivo
 2. Armazena automaticamente no object storage configurado
 3. Gera uma URL presignada de acesso
 4. A URL é incluída na resposta da API ou evento
@@ -346,7 +346,7 @@ Gere nomes únicos para cada arquivo para evitar sobrescrever arquivos existente
 
 ### 2. Configure Content-Type Correto
 
-O Evolution GO configura automaticamente o Content-Type baseado na extensão do arquivo:
+O WhatsappGo configura automaticamente o Content-Type baseado na extensão do arquivo:
 - `.jpg`, `.jpeg` → `image/jpeg`
 - `.png` → `image/png`
 - `.mp4` → `video/mp4`
@@ -471,4 +471,4 @@ aws s3 mb s3://evolution-go-media
 
 ---
 
-**Documentação gerada para Evolution GO v1.0**
+**Documentação gerada para WhatsappGo v1.0**
