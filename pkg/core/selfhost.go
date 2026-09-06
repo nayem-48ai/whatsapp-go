@@ -473,8 +473,44 @@ func selfGoogleEmail(accessToken string) (string, bool) {
 // selfFinishRegistration issues (or reuses) a license for email, creates the
 // one-time app code, and renders the branded success page.
 func selfFinishRegistration(c *gin.Context, rt SelfRegToken, email string) {
-	selfFinishRegistration(c, rt, email)
+	var lic SelfLicense
+	if err := _k4.Where("email = ?", email).First(&lic).Error; err != nil {
+		key, err := selfRandHex(32)
+		if err != nil {
+			c.Data(http.StatusInternalServerError, "text/html; charset=utf-8", []byte(selfErrorPage("Could not issue a license right now. Please try again.")))
+			return
+		}
+		lic = SelfLicense{Email: email, APIKey: key, Tier: rt.Tier, Status: "active"}
+		if err := _k4.Create(&lic).Error; err != nil {
+			c.Data(http.StatusInternalServerError, "text/html; charset=utf-8", []byte(selfErrorPage("Could not issue a license right now. Please try again.")))
+			return
+		}
+	}
+	if lic.Status != "active" {
+		lic.Status = "active"
+		_k4.Save(&lic)
+	}
+	code, err := selfRandHex(24)
+	if err != nil {
+		c.Data(http.StatusInternalServerError, "text/html; charset=utf-8", []byte(selfErrorPage("Could not issue a license right now. Please try again.")))
+		return
+	}
+	_k4.Create(&SelfAuthCode{
+		Code:       code,
+		LicenseID:  lic.ID,
+		InstanceID: rt.InstanceID,
+		CreatedAt:  time.Now(),
+		ExpiresAt:  time.Now().Add(15 * time.Minute),
+	})
+	_k4.Delete(&rt)
+	sep := "?"
+	if strings.Contains(rt.RedirectURI, "?") {
+		sep = "&"
+	}
+	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(selfSuccessPage(email, rt.RedirectURI+sep+"code="+code)))
 }
+
+func selfHandleRegisterExchange(c *gin.Context) {
 	var req struct {
 		AuthorizationCode string `json:"authorization_code"`
 		InstanceID        string `json:"instance_id"`
@@ -599,6 +635,43 @@ func selfRegisterPage(token, instanceID string) string {
 			`<svg width="17" height="17" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.5 12.3c0-.9-.1-1.5-.3-2.3H12v4.3h6.5c-.1 1.1-.8 2.7-2.4 3.8l-.1.1 3.5 2.7.2.1c2.2-2 3.8-5 3.8-8.7z"/><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.8-2.9c-1 .7-2.4 1.2-4.1 1.2-3.1 0-5.8-2.1-6.8-5l-.1.1-3.6 2.8v.1C3.5 21.3 7.5 24 12 24z"/><path fill="#FBBC05" d="M5.2 14.4c-.2-.7-.4-1.5-.4-2.4s.1-1.7.4-2.4l-.1-.1-3.6-2.8v.1C.5 8.9 0 10.4 0 12s.5 3.1 1.5 4.4l3.7-2z"/><path fill="#EA4335" d="M12 4.7c1.8 0 3 .8 3.7 1.4l3.3-3.2C17.9 1.1 15.2 0 12 0 7.5 0 3.5 2.7 1.5 6.8l3.7 2.9c1-2.9 3.7-5 6.8-5z"/></svg>` +
 			`Continue with Google</a>`
 	}
+	return `<!doctype html><html lang="en"><head><meta charset="utf-8"/>` +
+		`<meta name="viewport" content="width=device-width,initial-scale=1"/>` +
+		`<title>Activate WhatsappGo</title>` +
+		`<link rel="icon" href="https://raw.githubusercontent.com/nayem-48ai/whatsapp-go/main/public/whatsappgo/favicon.svg"/>` +
+		`<style>*{box-sizing:border-box}body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#09090b;color:#fafafa;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px}` +
+		`.card{background:#131316;border:1px solid #27272a;border-radius:16px;padding:36px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5)}` +
+		`.brand{display:flex;align-items:center;gap:12px;margin-bottom:6px}` +
+		`.brand img{width:44px;height:44px;border-radius:11px}` +
+		`.brand b{font-size:20px}h1{font-size:22px;margin:14px 0 8px}` +
+		`.steps{display:flex;gap:6px;margin:16px 0 4px}` +
+		`.steps span{flex:1;text-align:center;font-size:11px;color:#71717a;padding-top:8px;border-top:2px solid #27272a}` +
+		`.steps span.on{color:#4ade80;border-color:#25d366}` +
+		`p{color:#a1a1aa;font-size:14px;line-height:1.55}label{display:block;font-size:13px;font-weight:600;margin:16px 0 6px}` +
+		`input{width:100%;background:#09090b;border:1px solid #3f3f46;border-radius:9px;color:#fafafa;padding:11px 13px;font-size:14px}` +
+		`input:focus{outline:none;border-color:#25d366}` +
+		`button{margin-top:20px;width:100%;background:#25d366;border:0;border-radius:9px;color:#062d1a;padding:12px;font-size:15px;font-weight:700;cursor:pointer}` +
+		`button:hover{background:#1eb856}` +
+		`.or{display:flex;align-items:center;gap:12px;margin:22px 0 4px;color:#71717a;font-size:12px}` +
+		`.or:before,.or:after{content:"";flex:1;border-top:1px solid #27272a}` +
+		`.gbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#fafafa;border-radius:9px;color:#1f1f1f;padding:11px;font-size:15px;font-weight:600;text-decoration:none}` +
+		`.gbtn:hover{background:#e4e4e7}` +
+		`.note{font-size:12.5px;background:#09090b;border:1px solid #27272a;border-radius:8px;padding:8px 10px}` +
+		`.mono{font-family:monospace;font-size:11.5px;color:#71717a;word-break:break-all;background:#09090b;border:1px solid #27272a;border-radius:8px;padding:8px 10px}` +
+		`.foot{margin-top:20px;padding-top:14px;border-top:1px solid #27272a;font-size:12px;color:#71717a;text-align:center}</style></head><body>` +
+		`<div class="card"><div class="brand"><img src="https://raw.githubusercontent.com/nayem-48ai/whatsapp-go/main/public/whatsappgo/logo-400.png" alt="WhatsappGo"/><b>WhatsappGo</b></div>` +
+		`<h1>Activate your license</h1>` +
+		`<div class="steps"><span class="on">1 · Email</span><span>2 · Activate</span><span>3 · Done</span></div>` +
+		googleBtn +
+		`<p>Or register with your email — your key is issued instantly and stored <b style="color:#fafafa">only on your own server</b>.</p>` +
+		`<form method="POST" action="/license-server/complete">` +
+		`<input type="hidden" name="token" value="` + html.EscapeString(token) + `"/>` +
+		`<label for="email">Email address</label>` +
+		`<input id="email" type="email" name="email" required placeholder="you@example.com" autocomplete="email"/>` +
+		`<button type="submit">Activate with email</button></form>` +
+		`<p class="mono">Instance&nbsp;` + html.EscapeString(instanceID) + `</p>` +
+		`<div class="foot">WhatsappGo · Self-hosted license server</div></div></body></html>`
+}
 func selfSuccessPage(email, continueURL string) string {
 	return `<!doctype html><html lang="en"><head><meta charset="utf-8"/>` +
 		`<meta name="viewport" content="width=device-width,initial-scale=1"/>` +
