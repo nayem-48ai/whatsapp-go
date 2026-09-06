@@ -1,5 +1,7 @@
 # WhatsappGo
 
+<p align="center"><img src="./public/whatsappgo/logo-400.png" width="120" alt="WhatsappGo logo"/></p>
+
 High-performance WhatsApp API in Go — create instances, pair via QR code or
 pairing code, send text / media / interactive messages, receive real-time
 events. Ships with an English Manager UI and a **self-hosted license server**:
