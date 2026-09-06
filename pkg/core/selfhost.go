@@ -394,28 +394,48 @@ func selfRegisterPage(token, instanceID string) string {
 	return `<!doctype html><html lang="en"><head><meta charset="utf-8"/>` +
 		`<meta name="viewport" content="width=device-width,initial-scale=1"/>` +
 		`<title>Activate WhatsappGo</title>` +
-		`<style>body{font-family:system-ui,sans-serif;background:#09090b;color:#fafafa;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}` +
-		`.card{background:#18181b;border:1px solid #27272a;border-radius:12px;padding:32px;max-width:420px;width:90%}h1{font-size:22px;margin:0 0 8px}` +
-		`p{color:#a1a1aa;font-size:14px}label{display:block;font-size:13px;margin:16px 0 6px}` +
-		`input{width:100%;box-sizing:border-box;background:#09090b;border:1px solid #3f3f46;border-radius:8px;color:#fafafa;padding:10px 12px;font-size:14px}` +
-		`button{margin-top:20px;width:100%;background:#2563eb;border:0;border-radius:8px;color:#fff;padding:11px;font-size:15px;font-weight:600;cursor:pointer}` +
-		`button:hover{background:#1d4ed8}.mono{font-family:monospace;font-size:12px;color:#71717a;word-break:break-all}</style></head><body>` +
-		`<div class="card"><h1>Activate WhatsappGo</h1>` +
-		`<p>Enter the email address for this license. A license key will be issued and stored on your own server.</p>` +
+		`<link rel="icon" href="https://raw.githubusercontent.com/nayem-48ai/whatsapp-go/main/public/whatsappgo/favicon.svg"/>` +
+		`<style>*{box-sizing:border-box}body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#09090b;color:#fafafa;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px}` +
+		`.card{background:#131316;border:1px solid #27272a;border-radius:16px;padding:36px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5)}` +
+		`.brand{display:flex;align-items:center;gap:12px;margin-bottom:6px}` +
+		`.brand img{width:44px;height:44px;border-radius:11px}` +
+		`.brand b{font-size:20px}h1{font-size:22px;margin:14px 0 8px}` +
+		`.steps{display:flex;gap:6px;margin:16px 0 4px}` +
+		`.steps span{flex:1;text-align:center;font-size:11px;color:#71717a;padding-top:8px;border-top:2px solid #27272a}` +
+		`.steps span.on{color:#4ade80;border-color:#25d366}` +
+		`p{color:#a1a1aa;font-size:14px;line-height:1.55}label{display:block;font-size:13px;font-weight:600;margin:16px 0 6px}` +
+		`input{width:100%;background:#09090b;border:1px solid #3f3f46;border-radius:9px;color:#fafafa;padding:11px 13px;font-size:14px}` +
+		`input:focus{outline:none;border-color:#25d366}` +
+		`button{margin-top:20px;width:100%;background:#25d366;border:0;border-radius:9px;color:#062d1a;padding:12px;font-size:15px;font-weight:700;cursor:pointer}` +
+		`button:hover{background:#1eb856}` +
+		`.mono{font-family:monospace;font-size:11.5px;color:#71717a;word-break:break-all;background:#09090b;border:1px solid #27272a;border-radius:8px;padding:8px 10px}` +
+		`.foot{margin-top:20px;padding-top:14px;border-top:1px solid #27272a;font-size:12px;color:#71717a;text-align:center}</style></head><body>` +
+		`<div class="card"><div class="brand"><img src="https://raw.githubusercontent.com/nayem-48ai/whatsapp-go/main/public/whatsappgo/logo-400.png" alt="WhatsappGo"/><b>WhatsappGo</b></div>` +
+		`<h1>Activate your license</h1>` +
+		`<div class="steps"><span class="on">1 · Email</span><span>2 · Activate</span><span>3 · Done</span></div>` +
+		`<p>Enter the email address for this license. Your key is issued instantly and stored <b style="color:#fafafa">only on your own server</b> — nothing leaves your infrastructure.</p>` +
 		`<form method="POST" action="/license-server/complete">` +
 		`<input type="hidden" name="token" value="` + html.EscapeString(token) + `"/>` +
 		`<label for="email">Email address</label>` +
 		`<input id="email" type="email" name="email" required placeholder="you@example.com" autocomplete="email"/>` +
 		`<button type="submit">Activate license</button></form>` +
-		`<p class="mono">Instance: ` + html.EscapeString(instanceID) + `</p></div></body></html>`
+		`<p class="mono">Instance&nbsp;` + html.EscapeString(instanceID) + `</p>` +
+		`<div class="foot">WhatsappGo · Self-hosted license server</div></div></body></html>`
 }
 
 func selfErrorPage(msg string) string {
 	return `<!doctype html><html lang="en"><head><meta charset="utf-8"/>` +
 		`<meta name="viewport" content="width=device-width,initial-scale=1"/>` +
 		`<title>WhatsappGo — Error</title>` +
-		`<style>body{font-family:system-ui,sans-serif;background:#09090b;color:#fafafa;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}` +
-		`.card{background:#18181b;border:1px solid #27272a;border-radius:12px;padding:32px;max-width:420px;width:90%}h1{font-size:20px;margin:0 0 8px}` +
-		`p{color:#a1a1aa;font-size:14px}a{color:#60a5fa}</style></head><body>` +
-		`<div class="card"><h1>Something went wrong</h1><p>` + html.EscapeString(msg) + `</p></div></body></html>`
+		`<link rel="icon" href="https://raw.githubusercontent.com/nayem-48ai/whatsapp-go/main/public/whatsappgo/favicon.svg"/>` +
+		`<style>*{box-sizing:border-box}body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#09090b;color:#fafafa;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px}` +
+		`.card{background:#131316;border:1px solid #27272a;border-radius:16px;padding:36px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5)}` +
+		`.brand{display:flex;align-items:center;gap:12px;margin-bottom:6px}` +
+		`.brand img{width:44px;height:44px;border-radius:11px}` +
+		`.brand b{font-size:20px}h1{font-size:20px;margin:14px 0 8px}` +
+		`p{color:#a1a1aa;font-size:14px;line-height:1.55}a{color:#4ade80}` +
+		`.btn{display:inline-block;margin-top:16px;background:#25d366;border-radius:9px;color:#062d1a;padding:10px 22px;font-size:14px;font-weight:700;text-decoration:none}</style></head><body>` +
+		`<div class="card"><div class="brand"><img src="https://raw.githubusercontent.com/nayem-48ai/whatsapp-go/main/public/whatsappgo/logo-400.png" alt="WhatsappGo"/><b>WhatsappGo</b></div>` +
+		`<h1>Something went wrong</h1><p>` + html.EscapeString(msg) + `</p>` +
+		`<a class="btn" href="/manager/login">Back to login</a></div></body></html>`
 }
