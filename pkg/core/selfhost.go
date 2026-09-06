@@ -21,6 +21,7 @@ import (
 	"html"
 	"net/http"
 	"net/mail"
+	"net/url"
 	"os"
 	"strings"
 	"sync"
@@ -248,6 +249,8 @@ func SelfLicenseRoutes(eng *gin.Engine) {
 	lim := selfRateLimitMW(30, 60)
 	eng.GET("/license-server/register", lim, selfHandleRegisterPage)
 	eng.POST("/license-server/complete", lim, selfHandleRegisterComplete)
+	eng.GET("/license-server/google/start", lim, selfHandleGoogleStart)
+	eng.GET("/license-server/google/callback", lim, selfHandleGoogleCallback)
 }
 
 func selfHandleRegisterInit(c *gin.Context) {
@@ -355,7 +358,123 @@ func selfHandleRegisterComplete(c *gin.Context) {
 	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(selfSuccessPage(email, continueURL)))
 }
 
-func selfHandleRegisterExchange(c *gin.Context) {
+func selfGoogleConfigured() (id, secret string, ok bool) {
+	id = strings.TrimSpace(os.Getenv("GOOGLE_CLIENT_ID"))
+	secret = strings.TrimSpace(os.Getenv("GOOGLE_CLIENT_SECRET"))
+	return id, secret, id != "" && secret != ""
+}
+
+// selfHandleGoogleStart begins "Continue with Google": verifies the
+// registration token, then hands the browser to Google. Google returns to
+// selfHandleGoogleCallback with an authorization code.
+func selfHandleGoogleStart(c *gin.Context) {
+	token := strings.TrimSpace(c.Query("token"))
+	var rt SelfRegToken
+	if token == "" || _k4.Where("token = ?", token).First(&rt).Error != nil || time.Now().After(rt.ExpiresAt) {
+		c.Data(http.StatusBadRequest, "text/html; charset=utf-8", []byte(selfErrorPage("Invalid or expired registration link. Please start again from the Manager login page.")))
+		return
+	}
+	id, _, ok := selfGoogleConfigured()
+	if !ok {
+		c.Data(http.StatusBadGateway, "text/html; charset=utf-8", []byte(selfErrorPage("Google sign-in is not configured on this server. Please use email registration instead.")))
+		return
+	}
+	redirectURI := selfPublicBase(c) + "/license-server/google/callback"
+	authURL := "https://accounts.google.com/o/oauth2/v2/auth" +
+		"?client_id=" + url.QueryEscape(id) +
+		"&redirect_uri=" + url.QueryEscape(redirectURI) +
+		"&response_type=code&scope=" + url.QueryEscape("openid email profile") +
+		"&access_type=online&prompt=select_account" +
+		"&state=" + url.QueryEscape(token)
+	c.Redirect(http.StatusFound, authURL)
+}
+
+// selfHandleGoogleCallback finishes Google sign-in: exchanges the code,
+// reads the verified Gmail address, issues the license, and continues to
+// the app exactly like email registration does.
+func selfHandleGoogleCallback(c *gin.Context) {
+	code := strings.TrimSpace(c.Query("code"))
+	token := strings.TrimSpace(c.Query("state"))
+	if code == "" || token == "" {
+		c.Data(http.StatusBadRequest, "text/html; charset=utf-8", []byte(selfErrorPage("Google sign-in was cancelled or failed. Please try again.")))
+		return
+	}
+	var rt SelfRegToken
+	if _k4.Where("token = ?", token).First(&rt).Error != nil || time.Now().After(rt.ExpiresAt) {
+		c.Data(http.StatusBadRequest, "text/html; charset=utf-8", []byte(selfErrorPage("Invalid or expired registration link. Please start again from the Manager login page.")))
+		return
+	}
+	id, secret, ok := selfGoogleConfigured()
+	if !ok {
+		c.Data(http.StatusBadGateway, "text/html; charset=utf-8", []byte(selfErrorPage("Google sign-in is not configured on this server. Please use email registration instead.")))
+		return
+	}
+	redirectURI := selfPublicBase(c) + "/license-server/google/callback"
+
+	form := url.Values{}
+	form.Set("code", code)
+	form.Set("client_id", id)
+	form.Set("client_secret", secret)
+	form.Set("redirect_uri", redirectURI)
+	form.Set("grant_type", "authorization_code")
+	req, err := http.NewRequest(http.MethodPost, "https://oauth2.googleapis.com/token", strings.NewReader(form.Encode()))
+	if err != nil {
+		c.Data(http.StatusBadGateway, "text/html; charset=utf-8", []byte(selfErrorPage("Could not reach Google. Please try again.")))
+		return
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	resp, err := _3t.Do(req)
+	if err != nil {
+		c.Data(http.StatusBadGateway, "text/html; charset=utf-8", []byte(selfErrorPage("Could not reach Google. Please try again.")))
+		return
+	}
+	defer resp.Body.Close()
+	var tok struct {
+		AccessToken string `json:"access_token"`
+		IDToken     string `json:"id_token"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&tok); err != nil || (tok.AccessToken == "" && tok.IDToken == "") {
+		c.Data(http.StatusBadGateway, "text/html; charset=utf-8", []byte(selfErrorPage("Google rejected the sign-in. Please try again or use email registration.")))
+		return
+	}
+	email, verified := selfGoogleEmail(tok.AccessToken)
+	if email == "" || !verified {
+		c.Data(http.StatusForbidden, "text/html; charset=utf-8", []byte(selfErrorPage("Google did not return a verified email address. Please use email registration instead.")))
+		return
+	}
+	selfFinishRegistration(c, rt, email)
+}
+
+// selfGoogleEmail returns the Google account email + verified flag.
+func selfGoogleEmail(accessToken string) (string, bool) {
+	req, err := http.NewRequest(http.MethodGet, "https://www.googleapis.com/oauth2/v3/userinfo", nil)
+	if err != nil || accessToken == "" {
+		return "", false
+	}
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+	resp, err := _3t.Do(req)
+	if err != nil {
+		return "", false
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return "", false
+	}
+	var info struct {
+		Email         string `json:"email"`
+		VerifiedEmail bool   `json:"verified_email"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&info); err != nil {
+		return "", false
+	}
+	return strings.ToLower(strings.TrimSpace(info.Email)), info.VerifiedEmail
+}
+
+// selfFinishRegistration issues (or reuses) a license for email, creates the
+// one-time app code, and renders the branded success page.
+func selfFinishRegistration(c *gin.Context, rt SelfRegToken, email string) {
+	selfFinishRegistration(c, rt, email)
+}
 	var req struct {
 		AuthorizationCode string `json:"authorization_code"`
 		InstanceID        string `json:"instance_id"`
@@ -473,38 +592,13 @@ func selfHandleDeactivate(c *gin.Context) {
 // ---------------------------------------------------------------------------
 
 func selfRegisterPage(token, instanceID string) string {
-	return `<!doctype html><html lang="en"><head><meta charset="utf-8"/>` +
-		`<meta name="viewport" content="width=device-width,initial-scale=1"/>` +
-		`<title>Activate WhatsappGo</title>` +
-		`<link rel="icon" href="https://raw.githubusercontent.com/nayem-48ai/whatsapp-go/main/public/whatsappgo/favicon.svg"/>` +
-		`<style>*{box-sizing:border-box}body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#09090b;color:#fafafa;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px}` +
-		`.card{background:#131316;border:1px solid #27272a;border-radius:16px;padding:36px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5)}` +
-		`.brand{display:flex;align-items:center;gap:12px;margin-bottom:6px}` +
-		`.brand img{width:44px;height:44px;border-radius:11px}` +
-		`.brand b{font-size:20px}h1{font-size:22px;margin:14px 0 8px}` +
-		`.steps{display:flex;gap:6px;margin:16px 0 4px}` +
-		`.steps span{flex:1;text-align:center;font-size:11px;color:#71717a;padding-top:8px;border-top:2px solid #27272a}` +
-		`.steps span.on{color:#4ade80;border-color:#25d366}` +
-		`p{color:#a1a1aa;font-size:14px;line-height:1.55}label{display:block;font-size:13px;font-weight:600;margin:16px 0 6px}` +
-		`input{width:100%;background:#09090b;border:1px solid #3f3f46;border-radius:9px;color:#fafafa;padding:11px 13px;font-size:14px}` +
-		`input:focus{outline:none;border-color:#25d366}` +
-		`button{margin-top:20px;width:100%;background:#25d366;border:0;border-radius:9px;color:#062d1a;padding:12px;font-size:15px;font-weight:700;cursor:pointer}` +
-		`button:hover{background:#1eb856}` +
-		`.mono{font-family:monospace;font-size:11.5px;color:#71717a;word-break:break-all;background:#09090b;border:1px solid #27272a;border-radius:8px;padding:8px 10px}` +
-		`.foot{margin-top:20px;padding-top:14px;border-top:1px solid #27272a;font-size:12px;color:#71717a;text-align:center}</style></head><body>` +
-		`<div class="card"><div class="brand"><img src="https://raw.githubusercontent.com/nayem-48ai/whatsapp-go/main/public/whatsappgo/logo-400.png" alt="WhatsappGo"/><b>WhatsappGo</b></div>` +
-		`<h1>Activate your license</h1>` +
-		`<div class="steps"><span class="on">1 · Email</span><span>2 · Activate</span><span>3 · Done</span></div>` +
-		`<p>Enter the email address for this license. Your key is issued instantly and stored <b style="color:#fafafa">only on your own server</b> — nothing leaves your infrastructure.</p>` +
-		`<form method="POST" action="/license-server/complete">` +
-		`<input type="hidden" name="token" value="` + html.EscapeString(token) + `"/>` +
-		`<label for="email">Email address</label>` +
-		`<input id="email" type="email" name="email" required placeholder="you@example.com" autocomplete="email"/>` +
-		`<button type="submit">Activate license</button></form>` +
-		`<p class="mono">Instance&nbsp;` + html.EscapeString(instanceID) + `</p>` +
-		`<div class="foot">WhatsappGo · Self-hosted license server</div></div></body></html>`
-}
-
+	googleBtn := `<p class="note">Google sign-in is not enabled on this server — continue with email below.</p>`
+	if _, _, ok := selfGoogleConfigured(); ok {
+		googleBtn = `<div class="or"><span>or</span></div>` +
+			`<a class="gbtn" href="/license-server/google/start?token=` + html.EscapeString(token) + `">` +
+			`<svg width="17" height="17" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.5 12.3c0-.9-.1-1.5-.3-2.3H12v4.3h6.5c-.1 1.1-.8 2.7-2.4 3.8l-.1.1 3.5 2.7.2.1c2.2-2 3.8-5 3.8-8.7z"/><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.8-2.9c-1 .7-2.4 1.2-4.1 1.2-3.1 0-5.8-2.1-6.8-5l-.1.1-3.6 2.8v.1C3.5 21.3 7.5 24 12 24z"/><path fill="#FBBC05" d="M5.2 14.4c-.2-.7-.4-1.5-.4-2.4s.1-1.7.4-2.4l-.1-.1-3.6-2.8v.1C.5 8.9 0 10.4 0 12s.5 3.1 1.5 4.4l3.7-2z"/><path fill="#EA4335" d="M12 4.7c1.8 0 3 .8 3.7 1.4l3.3-3.2C17.9 1.1 15.2 0 12 0 7.5 0 3.5 2.7 1.5 6.8l3.7 2.9c1-2.9 3.7-5 6.8-5z"/></svg>` +
+			`Continue with Google</a>`
+	}
 func selfSuccessPage(email, continueURL string) string {
 	return `<!doctype html><html lang="en"><head><meta charset="utf-8"/>` +
 		`<meta name="viewport" content="width=device-width,initial-scale=1"/>` +

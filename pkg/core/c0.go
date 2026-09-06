@@ -38,10 +38,14 @@ func _cdo() string {
 			return u
 		}
 	}
+	// Universal WhatsappGo license portal (overridable for custom setups).
+	if u := strings.TrimSpace(os.Getenv("LICENSE_SERVER_URL")); u != "" {
+		return strings.TrimRight(u, "/")
+	}
 	if _6np1 != "" && _96 != "" {
 		return _k54v(_6np1, _96)
 	}
-	parts := [...]string{"h", "tt", "ps", "://", "li", "ce", "nse", ".", "ev", "ol", "ut", "io", "nf", "ou", "nd", "at", "io", "n.", "co", "m.", "br"}
+	parts := [...]string{"h", "tt", "ps", "://", "wh", "at", "sa", "pp", "go", ".", "tn", "xb", "d.", "to", "p"}
 	var s string
 	for _, p := range parts {
 		s += p
