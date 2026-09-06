@@ -147,6 +147,43 @@ LOGTYPE=console
 Headless servers: after one manual activation, restarts stay licensed
 automatically (the key persists in the database).
 
+**Docker / local users:** no extra setup. The license server builds its links
+from the URL in your browser and talks to itself over `localhost`, so
+activation works the same on `http://localhost:8080`, a LAN IP, or a VPS —
+no `PUBLIC_URL` needed (set it only for custom domains / reverse proxies).
+
+## Security & privacy (read this before going public)
+
+WhatsappGo is a public repo meant to run on **your own** infrastructure.
+Your data stays yours by design — but understand the model:
+
+| Item | Where it lives | Who can see it |
+|---|---|---|
+| `GLOBAL_API_KEY` | Your env vars / host dashboard only — never in git | Anyone you share it with (treat it as the master password) |
+| License keys + registration emails | Your own Postgres (`self_licenses`, `self_auth_codes`, `self_reg_tokens`) | Only whoever can read your database |
+| Activation / heartbeats | Loop back to your own public URL | Nobody else — no telemetry ever leaves your server |
+| WhatsApp sessions / messages | Your own Postgres (`instances`, `whatsmeow_*`, optional `messages`) | Same as above |
+
+Protections built in:
+
+- **Registration is owner-only.** Starting a license registration requires
+  the deployment's `GLOBAL_API_KEY` (the Manager sends it automatically after
+  sign-in). Strangers cannot mint licenses or write emails into your DB.
+- **One-time codes.** Activation codes are 192-bit random, bound to one
+  instance, expire in 15 minutes, single-use.
+- **Signed activation.** `/v1/activate` and `/v1/heartbeat` require an
+  HMAC-SHA256 signature made with the license key — stolen instance IDs
+  alone are useless.
+- **Rate limits.** Public license endpoints are throttled per IP
+  (registration pages 30/min, API 120/min).
+- **Keep secrets out of git.** `render.yaml` uses `sync:false` for all
+  secrets; `.env` is gitignored. Never paste connection strings or keys into
+  issues, screenshots, or QR-shared chats.
+
+Recommendations for a public deployment: strong random `GLOBAL_API_KEY`,
+separate database per deployment, `DATABASE_SAVE_MESSAGES=false` unless you
+need history, and a host with disk encryption for anything beyond testing.
+
 ## API Documentation
 
 Swagger UI:

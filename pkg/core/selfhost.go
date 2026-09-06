@@ -23,6 +23,7 @@ import (
 	"net/mail"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -42,7 +43,7 @@ func IsSelfHosted() bool {
 }
 
 // SelfBaseURL returns this deployment's public base URL, used for license
-// loopback calls and for building registration links.
+// loopback calls. Env first, then localhost (Docker/local zero-config).
 func SelfBaseURL() string {
 	if u := strings.TrimSpace(os.Getenv("PUBLIC_URL")); u != "" {
 		return strings.TrimRight(u, "/")
@@ -51,7 +52,39 @@ func SelfBaseURL() string {
 	if u := strings.TrimSpace(os.Getenv("RENDER_EXTERNAL_URL")); u != "" {
 		return strings.TrimRight(u, "/")
 	}
-	return ""
+	port := strings.TrimSpace(os.Getenv("SERVER_PORT"))
+	if port == "" {
+		port = "8080"
+	}
+	return "http://localhost:" + port
+}
+
+// selfPublicBase returns the browser-facing base URL: explicit env first,
+// otherwise derived from the incoming request (proxy-aware). This makes
+// licensing work on any URL (localhost, LAN IP, VPS, custom domain) with
+// zero configuration.
+func selfPublicBase(c *gin.Context) string {
+	if u := strings.TrimSpace(os.Getenv("PUBLIC_URL")); u != "" {
+		return strings.TrimRight(u, "/")
+	}
+	if u := strings.TrimSpace(os.Getenv("RENDER_EXTERNAL_URL")); u != "" {
+		return strings.TrimRight(u, "/")
+	}
+	proto := strings.TrimSpace(c.GetHeader("X-Forwarded-Proto"))
+	if proto == "" {
+		proto = "http"
+		if c.Request.TLS != nil {
+			proto = "https"
+		}
+	}
+	host := strings.TrimSpace(c.GetHeader("X-Forwarded-Host"))
+	if host == "" {
+		host = strings.TrimSpace(c.Request.Host)
+	}
+	if host == "" {
+		return SelfBaseURL()
+	}
+	return proto + "://" + strings.TrimRight(host, "/")
 }
 
 // ---------------------------------------------------------------------------
@@ -143,6 +176,56 @@ func selfAuthLicense(c *gin.Context, body []byte) (*SelfLicense, bool) {
 }
 
 // ---------------------------------------------------------------------------
+// tiny in-memory fixed-window rate limiter (per client IP) for the public
+// license endpoints — prevents registration spam / email stuffing.
+// ---------------------------------------------------------------------------
+
+var selfRL = struct {
+	sync.Mutex
+	hits map[string][]int64
+}{hits: map[string][]int64{}}
+
+func selfRateLimitMW(max int, windowSec int64) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ip := c.ClientIP()
+		now := time.Now().Unix()
+		selfRL.Lock()
+		if len(selfRL.hits) > 20000 {
+			selfRL.hits = map[string][]int64{}
+		}
+		kept := selfRL.hits[ip][:0]
+		for _, t := range selfRL.hits[ip] {
+			if t > now-windowSec {
+				kept = append(kept, t)
+			}
+		}
+		if len(kept) >= max {
+			selfRL.hits[ip] = kept
+			selfRL.Unlock()
+			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
+				"error": "too many requests, please slow down",
+			})
+			return
+		}
+		selfRL.hits[ip] = append(kept, now)
+		selfRL.Unlock()
+		c.Next()
+	}
+}
+
+// selfAdminGuard ensures only someone holding the deployment's GLOBAL_API_KEY
+// (the owner, signed into the Manager) can start a license registration.
+// The Manager SPA always sends the key it was given at login.
+func selfAdminGuard(c *gin.Context) bool {
+	want := strings.TrimSpace(os.Getenv("GLOBAL_API_KEY"))
+	got := strings.TrimSpace(c.GetHeader("apikey"))
+	if want == "" || got == "" {
+		return false
+	}
+	return subtle.ConstantTimeCompare([]byte(got), []byte(want)) == 1
+}
+
+// ---------------------------------------------------------------------------
 // HTTP API
 // ---------------------------------------------------------------------------
 
@@ -153,6 +236,7 @@ func SelfLicenseRoutes(eng *gin.Engine) {
 		return
 	}
 	v1 := eng.Group("/v1")
+	v1.Use(selfRateLimitMW(120, 60))
 	{
 		v1.POST("/register/init", selfHandleRegisterInit)
 		v1.POST("/register/exchange", selfHandleRegisterExchange)
@@ -161,18 +245,15 @@ func SelfLicenseRoutes(eng *gin.Engine) {
 		v1.POST("/heartbeat", selfHandleHeartbeat)
 		v1.POST("/deactivate", selfHandleDeactivate)
 	}
-	eng.GET("/license-server/register", selfHandleRegisterPage)
-	eng.POST("/license-server/complete", selfHandleRegisterComplete)
+	lim := selfRateLimitMW(30, 60)
+	eng.GET("/license-server/register", lim, selfHandleRegisterPage)
+	eng.POST("/license-server/complete", lim, selfHandleRegisterComplete)
 }
 
 func selfHandleRegisterInit(c *gin.Context) {
-	base := SelfBaseURL()
+	base := selfPublicBase(c)
 	if base == "" {
-		c.JSON(http.StatusBadGateway, gin.H{
-			"error":   "self-hosted license server has no public URL",
-			"message": "Set PUBLIC_URL (Render provides RENDER_EXTERNAL_URL automatically).",
-		})
-		return
+		base = SelfBaseURL()
 	}
 	var req struct {
 		Tier        string `json:"tier"`

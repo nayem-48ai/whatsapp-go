@@ -715,6 +715,18 @@ func LicenseRoutes(eng *gin.Engine, rc *RuntimeContext) {
 				return
 			}
 
+			// Self-hosted mode: only the holder of the deployment's
+			// GLOBAL_API_KEY (the owner, signed into the Manager) may mint
+			// registrations. Stops strangers from writing emails/keys into
+			// your database on a public deployment.
+			if IsSelfHosted() && !selfAdminGuard(c) {
+				c.JSON(http.StatusUnauthorized, gin.H{
+					"error":   "Registration requires the admin API key",
+					"message": "Sign in to the Manager with your GLOBAL_API_KEY first.",
+				})
+				return
+			}
+
 			rc.mu.RLock()
 			existingURL := rc._v8
 			rc.mu.RUnlock()
