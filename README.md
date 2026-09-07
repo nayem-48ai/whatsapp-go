@@ -151,8 +151,15 @@ Fresh `whatsapp-go` deployments verify against the public portal by default
 
 - Portal: `https://whatsappgo.tnxbd.top/license-server/register` — branded
   activation with **Continue with Google** (verified Gmail) or email.
+- **Leave `LICENSE_MODE` unset** (delete it or leave empty) to use the
+  universal portal — this is what gives your users the Google login button
+  with zero setup on their side.
 - Prefer full autonomy? `LICENSE_MODE=self` turns any deployment (Docker/VPS)
-  into its own license server with zero config.
+  into its own license server with zero config — but then **email-only**
+  registration applies, unless you configure your own Google OAuth client
+  (`GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET` env vars, with your portal URL
+  registered as an authorized redirect URI in Google Cloud Console).
+  Never put these secrets in git.
 - Operators can point deployments at a different portal with
   `LICENSE_SERVER_URL=https://…`.
 
